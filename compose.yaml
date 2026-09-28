@@ -1,0 +1,38 @@
+﻿services:
+  testjobsys:
+    image: testjobsys
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: TestJobSys/Dockerfile
+    ports:
+      - "8090:8080"
+  
+  pgAdmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: unused
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./servers/servers.json:/pgadmin4/servers.json:ro
+  
+  postgres:
+    image: postgres:18
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pgdata:/var/lib/postgresql/
+      - ./schema:/docker-entrypoint-initdb.d/
+
+volumes:
+  pgdata:
